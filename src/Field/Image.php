@@ -133,7 +133,8 @@ class Image extends BasicField implements FieldInterface
      */
     protected function fetchMetadataValue(Post $attachment)
     {
-        $meta = PostMeta::where('post_id', $attachment->ID)
+        $meta = PostMeta::on($this->post->getConnectionName())
+                        ->where('post_id', $attachment->ID)
                         ->where('meta_key', '_wp_attachment_metadata')
                         ->first();
 
@@ -150,10 +151,11 @@ class Image extends BasicField implements FieldInterface
         $ids = $attachments->pluck('ID')->toArray();
         $metadataValues = [];
 
-        $metaRows = PostMeta::whereIn("post_id", $ids)
+        $metaRows = PostMeta::on($this->post->getConnectionName())
+            ->whereIn("post_id", $ids)
             ->where('meta_key', '_wp_attachment_metadata')
             ->get();
-            
+
         foreach ($metaRows as $meta) {
             $metadataValues[$meta->post_id] = unserialize($meta->meta_value);
         }
